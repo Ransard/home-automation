@@ -1,0 +1,37 @@
+[{
+	"id": 1,
+	"name": "Raspberry"
+},
+{
+	"id": 2,
+	"name": "Utelampa"
+},
+{
+	"id": 3,
+	"name": "Matrum"
+},
+{
+	"id": 4,
+	"name": "Vardagsrum"
+},
+{
+	"id": 5,
+	"name": "Kök"
+},
+{
+	"id": 6,
+	"name": "Kontor"
+},
+{
+	"id": 7,
+	"name": "Gästrum"
+},
+{
+	"id": 8,
+	"name": "Chromecast"
+},
+{
+	"id": 9,
+	"name": "Övre hall"
+}
+]
