@@ -111,7 +111,7 @@ function getScheduleFromRequest(id,data) {
 }
 
 app.get('/addSchedules', function(req,res){
-	var weekday = require('./weekday_schedule.json');
+	var weekday = require('./schedules/weekday_schedule.json');
 
 	console.log("number of items is ",weekday.length);
 
