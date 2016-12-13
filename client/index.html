@@ -7,6 +7,8 @@
 		<script src="./bower_components/moment-timezone/moment-timezone.js"></script>
 		<script src="./bower_components/angularjs/angular.min.js"></script>
 		<script src="./bower_components/d3/d3.js"></script>
+		<script src="./bower_components/jquery/dist/jquery.min.js"></script>
+		<script src="./bower_components/bootstrap/js/collapse.js"></script>
 		<script src="util.js"></script>
 		<script src="app.js"></script>
 		<script src="d3.js"></script>
@@ -37,18 +39,20 @@
 				Set schedule for all devices:
 				<input type="time" ng-model="globalTurnOn" />
 				<input type="time" ng-model="globalTurnOff" />
+				<button ng-click='getLightData()'>Get Light Data</button>
 				<button type=submit ng-click='setGlobalSchedule()'>Set</button>
 		</div></div>
-		<ul>
-			<li class="device" ng-repeat="device in devices"><div class="panel panel-default"><div class="panel-header><span class="device-desc">{{device.name}}</span></div><div class="panel-body">
-					<div class="col-md-12">
-						<button ng-click='turnOn(device.id)'>Turn on</button> 
-						<button ng-click='turnOff(device.id)'>Turn off</button>
+		<div class="panel-group" id="accordion" role="tablist">
+			<div class="device" ng-repeat="device in devices | orderBy:['noSchedules','name']">
+				<div class="panel panel-default">
+					<div class="panel-heading"><h3><span class="device-desc">{{device.name}}</span></h3></div><div class="panel-body">
+					<div class="col-md-6">
+						<button class="btn btn-default" ng-click='turnOn(device.id)'>Turn on</button> 
+						<button class="btn btn-default" ng-click='turnOff(device.id)'>Turn off</button>
 					</div>
-					<div class="col-md-12">Scheduling</div>
 					<div class="col-md-3">Turn on: <input type="time" ng-model=device.turnOn ng-required="!device.turnOn" /></div>
 					<div class="col-md-3">Turn off: <input type="time" ng-model=device.turnOff ng-required="!device.turnOff" /></div>
-					<div class="col-md-4"><button type="submit" ng-click='addSchedule(device)'>Add</button></div>
+					<div class="col-md-4"><button type="submit" class="btn btn-default" ng-click='addSchedule(device)'>Add</button></div>
 					<!--<button type=submit ng-click='setSchedule(device)'>Set</button>-->
 					<div class="col-md-12">Current schedules</div>
 					<div class="col-md-12">
@@ -56,8 +60,9 @@
 							<li ng-repeat="schedule in device.schedules">{{schedule.text}}
 						</ul>
 						<select ng-model="device.activeSchedule" ng-options="schedule.text for schedule in device.schedules track by schedule.id"></select>
-						<button type="submit" ng-click='removeSchedule(device)'>Remove</button></div></div></div>
-		</ul>
+						<button class="btn btn-default" type="submit" ng-click='removeSchedule(device)'>Remove</button></div></div></div>
+			</div>
+		</div>
 		Ha ljusen på i en timme, släck sedan
 	</div>
 </div>

@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var sunCalc = require('suncalc');
 var CronJob = require('cron').CronJob;
 var telldus = require('telldus');
+var lights = require('./lights.json');
 
 
 var app = express();
@@ -16,10 +17,6 @@ var list;
 var schedules = [];
 var allSchedules = [];
 var sensorData = [] ;
-
-//hue.nupnpSearch().then(function(err,result){console.log(err); console.log(result);}).done();
-//
-
 
 io.on('connection', function(socket){
 	console.log("a user connected");
@@ -40,16 +37,18 @@ function getTimePortion(date){
 
 
 telldus.getDevices(function(err,devices) {
-		if ( err ) {
+	if ( err ) {
 		console.log('Error: ' + err);
-		} else {
+	} else {
 		// A list of all configured devices is returned
 		list = devices;
 
-		for(var i = 0; i < list.length; i++)
-		list[i].schedules = [];
+		for(var i = 0; i < list.length; i++) {
+			list[i].schedules = [];
+			list[i].name = lights.filter(function(l){return l.id == list[i].id}).map(function(o){return o.name})[0];
 		}
-		});
+	}
+});
 
 var currTimestamp = [];
 
@@ -69,7 +68,7 @@ telldus.addSensorEventListener(function(deviceId,protocol,model,type,value,times
 
 		if(sensorData.length > 1000)
 			sensorData.shift();
-	
+
 		sensorData.push(data);
 		io.emit('sensor',data);
 	}	
@@ -77,17 +76,21 @@ telldus.addSensorEventListener(function(deviceId,protocol,model,type,value,times
 });
 
 app.get('/', function(req, res){
-		res.sendFile(__dirname + '/client/index.html');
-		});
+	res.sendFile(__dirname + '/client/index.html');
+});
+
+app.get('/lights', function(req, res){
+	res.send(lights);
+});
 
 app.post('/turnOn', function(req, res){
-		telldus.turnOn(req.body.id,function(err){ console.log("error"); });
-		res.send(list);
-		});
+	telldus.turnOn(req.body.id,function(err){ console.log("error"); });
+	res.send(list);
+});
 
 app.post('/turnOff', function(req, res){
-		telldus.turnOff(req.body.id, function(err){ console.log("error"); });
-		});
+	telldus.turnOff(req.body.id, function(err){ console.log("error"); });
+});
 
 function getCurrentDevice(id) {
 
@@ -104,61 +107,82 @@ function getCurrentDevice(id) {
 }
 
 function getScheduleFromRequest(id,data) {
-return {"id": id, "turnon": new Date(data.turnOn), "turnoff": new Date(data.turnOff)};
+	return {"id": id, "turnon": new Date(data.turnon), "turnoff": new Date(data.turnoff)};
 }
 
+app.get('/addSchedules', function(req,res){
+	var weekday = require('./weekday_schedule.json');
+
+	console.log("number of items is ",weekday.length);
+
+	weekday.forEach(function(item){
+		console.log(item);
+		addSchedule(item);
+	});
+
+	res.send(200);
+})
+
 app.post('/addSchedule', function(req,res) {
+	addSchedule(req.body);
+	res.send(200);
+});
 
-		var currentDevice = getCurrentDevice(req.body.id);
+function addSchedule(newSchedule) {
+	var currentDevice = getCurrentDevice(newSchedule.id);
 
-		var currentSchedule = getScheduleFromRequest(currentDevice.schedules.length,req.body);
+	if(newSchedule.schedules.length == 0)
+		return;
 
-		currentDevice.schedules.push(getScheduleFromRequest(currentDevice.schedules.length,req.body));
+	console.log("SCHEDULES TO BE ADDED: ", newSchedule);
+	
+	newSchedule.schedules.forEach(function(t){
+		var currentSchedule = getScheduleFromRequest(currentDevice.schedules.length,t);
 
-		schedules.push(currentSchedule);
+		currentDevice.schedules.push(currentSchedule);
 
 		var scheduleOn = 
-		new CronJob(getCronTime(req.body.turnOn),function(){console.log(this); telldus.turnOn(currentDevice.id, function(err){ console.log("error"); })});
-		var scheduleOff = 
-		new CronJob(getCronTime(req.body.turnOff), function(){telldus.turnOff(currentDevice.id, function(err) { console.log("error"); })});
+		new CronJob(getCronTime(currentSchedule.turnon),function(){console.log(this); telldus.turnOn(currentDevice.id, function(err){ console.log("error"); })});
+	var scheduleOff = 
+		new CronJob(getCronTime(currentSchedule.turnoff), function(){telldus.turnOff(currentDevice.id, function(err) { console.log("error"); })});
 
-		//allSchedules.push(scheduleOn);
-		//allSchedules.push(scheduleOff);
+	currentSchedule.cron = {};
+	currentSchedule.cron.scheduleOn = scheduleOn;
+	currentSchedule.cron.scheduleOff = scheduleOff;
 
-		currentSchedule.scheduleOn = scheduleOn;
-		currentSchedule.scheduleOff = scheduleOff;
+	console.log("CURRENT SCHEDULE ADDED", currentSchedule);
 
-		scheduleOn.start();
-		scheduleOff.start();
+	scheduleOn.start();
+	scheduleOff.start();
 
-		console.log(currentDevice.schedules);
+	});
+	console.log("added schedule")
+}
 
-		res.send(200);
-});
 
 app.post('/removeSchedule', function(req,res) {
 
 
-		var currentDevice = null;
+	var currentDevice = null;
 
-		for(i = 0; i < list.length; i++)
+	for(i = 0; i < list.length; i++)
 		if(list[i].id === req.body.deviceid)
-		currentDevice = list[i];
+			currentDevice = list[i];
 
-		var indexRemove;
+	var indexRemove;
 
-		for(var i = 0; i < currentDevice.schedules.length; i++)
+	for(var i = 0; i < currentDevice.schedules.length; i++)
 		if(currentDevice.schedules[i].id == req.body.scheduleid)
-		indexRemove = currentDevice.schedules.indexOf(currentDevice.schedules[i]);
+			indexRemove = currentDevice.schedules.indexOf(currentDevice.schedules[i]);
 
-		if(indexRemove > -1 ) {		
+	if(indexRemove > -1 ) {		
 
 		var currentSchedule = null;
 
 		for(i = 0; i < schedules.length; i++) {
-		console.log("comparing: " + currentDevice.schedules[indexRemove].id + " - " + schedules[i].id);
-		if(currentDevice.schedules[indexRemove].id  === schedules[i].id)
-			currentSchedule = schedules[i];
+			console.log("comparing: " + currentDevice.schedules[indexRemove].id + " - " + schedules[i].id);
+			if(currentDevice.schedules[indexRemove].id  === schedules[i].id)
+				currentSchedule = schedules[i];
 		}
 
 		console.log("currentSchedule is");
@@ -166,100 +190,65 @@ app.post('/removeSchedule', function(req,res) {
 
 		if(currentSchedule !== null) {	
 			console.log(currentSchedule);
-			var turnOn = currentSchedule.scheduleOn;
+			var turnOn = currentSchedule.cron.scheduleOn;
 			turnOn.stop();
-			var turnOff = currentSchedule.scheduleOff;
+			var turnOff = currentSchedule.cron.scheduleOff;
 			turnOff.stop();
 			//allSchedules.remove(turnOn);
 			//allSchedules.remove(turnOff);
 		}
 
 		currentDevice.schedules.splice(indexRemove, 1);
-		}
+	}
 
-		res.send(200);
+	res.send(200);
 });
-//
-//app.post('/setSchedule', function(req, res){
-//
-//		console.log(req.body);
-//
-//		var currentDevice = null;
-//
-//		for(i = 0; i < list.length; i++)
-//		if(list[i].id === req.body.id)
-//		currentDevice = list[i];
-//
-//		if(currentDevice !== null)
-//		{
-//		currentDevice.turnOn = new Date(req.body.turnOn);
-//		currentDevice.turnOff = new Date(req.body.turnOff);
-//
-//		var currentSchedule = null;
-//
-//		for(i = 0; i < schedules.length; i++)
-//		if(currentDevice.id === schedules[i].id)
-//		currentSchedule = schedules[i];
-//
-//		if(currentSchedule === null)
-//		{
-//			currentSchedule = {id: currentDevice.id };
-//			schedules.push(currentSchedule);
-//		}
-//
-//		if(currentSchedule.scheduleOn)
-//		{
-//			console.log("stopping old start schedule");
-//			currentSchedule.scheduleOn.stop();
-//		}
-//
-//		if(currentSchedule.scheduleOff)
-//		{
-//			console.log("stopping old stop schedule");
-//			currentSchedule.scheduleOff.stop();
-//		}
-//
-//		var scheduleOn = 
-//			new CronJob(getCronTime(req.body.turnOn),function(){telldus.turnOn(currentDevice.id, function(err){ console.log("error"); })});
-//		var scheduleOff = 
-//			new CronJob(getCronTime(req.body.turnOff), function(){telldus.turnOff(currentDevice.id, function(err) { console.log("error"); })});
-//
-//		currentSchedule.scheduleOn = scheduleOn;
-//		currentSchedule.scheduleOff = scheduleOff;
-//
-//		scheduleOn.start();
-//		scheduleOff.start();
-//
-//		console.log(currentSchedule);
-//		}
-//
-//});
 
 app.get('/getDevices', function(req, res){
-		res.send(list);
+	var result = [];
+
+	list.forEach(function(item){
+		var itemForClient = Object.assign({},item);
+
+		itemForClient.schedules.forEach(function(schedule){
+			schedule.cron = undefined;
 		});
+
+		result.push(item);
+	});
+	res.send(list);
+});
 
 app.get('/getSensorData', function(req, res){
 	res.send(sensorData);
 });
 
 app.get('/getAllSchedules',function(req, res){
-	
+
 	//console.log(allSchedules.length);
 
 	res.send(200);	
 });
 
 app.get('/getTime', function(req,res){
-		var times = sunCalc.getTimes(new Date(),59.459611,17.808503);
-		res.send({sun: times, time: new Date()});
-		});
+	var times = sunCalc.getTimes(new Date(),59.459611,17.808503);
+	res.send({sun: times, time: new Date()});
+});
 
-var server = http.listen(8080, function() {
-		
-		var host = server.address().address;
-		var port = server.address().port;
+var server = http.listen(80, function() {
 
-		console.log('Example app listening at http://%s:%s', host, port);
+	var host = server.address().address;
+	var port = server.address().port;
 
-		});
+	console.log('Example app listening at http://%s:%s', host, port);
+
+});
+
+function omit(obj, omitKey) {
+  return Object.keys(obj).reduce((result, key) => {
+      if(key !== omitKey) {
+             result[key] = obj[key];
+          }
+      return result;
+    }, {});
+}

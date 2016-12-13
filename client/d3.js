@@ -9,18 +9,7 @@
 
 function DrawGraph(data) {
 
-	var svg = d3.select("body").append("svg:svg")
-		.attr("width", width + margin[1] + margin[3])
-		.attr("height", height + margin[0] + margin[2])
-		.append("svg:g")
-		.attr("transform","translate(" + margin[3] + "," + margin[0] + ")");
-
-	color.domain(d3.keys(d3Item[0]).filter(function (key) { return key == "deviceId";  }));
-
-
 	data = d3.nest().key(function(d) { return d.deviceId; }).entries(data);
-
-	console.log(data);
 
 	var min  = d3.min(data, function(d) { return d3.min(d.values, function(d) { return d.value }) });
 	var max  = d3.max(data, function(d) { return d3.max(d.values, function(d) { return d.value }) });
@@ -45,6 +34,23 @@ function DrawGraph(data) {
 	var yAxis = d3.svg.axis()
 		.scale(y)
 		.orient("left");
+
+
+
+	var svg = d3.select("body").append("svg:svg")
+		.attr("width", width + margin[1] + margin[3])
+		.attr("height", height + margin[0] + margin[2])
+		.append("svg:g")
+		.attr("transform","translate(" + margin[3] + "," + margin[0] + ")")
+		.call(yAxis);
+
+	color.domain(d3.keys(d3Item[0]).filter(function (key) { return key == "deviceId";  }));
+
+
+
+	console.log(data);
+
+
 
 	var line = d3.svg.line()
 		.interpolate("basis")
