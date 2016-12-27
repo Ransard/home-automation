@@ -19,7 +19,7 @@ var allSchedules = [];
 var sensorData = [] ;
 
 io.on('connection', function(socket){
-	console.log("a user connected again");
+	console.log("a user connected again 2");
 });
 
 function getCronTime(dateString)
