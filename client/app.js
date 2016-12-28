@@ -52,6 +52,13 @@ smartHouseApp.controller('mainController',function($scope,$http) {
 			$scope.dusk = data.dusk;
 		});
 
+	$scope.addDefaultSchedule = function() {
+		$http.post('/addSchedules')
+		.success(function(data) {
+			console.log("added default schedules");
+		})
+	}
+
 	$scope.turnOn = function(id){
 		console.log(id);
 		$http.post('/turnOn/',{"id": id}).

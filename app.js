@@ -110,7 +110,7 @@ function getScheduleFromRequest(id,data) {
 	return {"id": id, "turnon": new Date(data.turnon), "turnoff": new Date(data.turnoff)};
 }
 
-app.get('/addSchedules', function(req,res){
+app.post('/addSchedules', function(req,res){
 	var weekday = require('./schedules/weekday_schedule.json');
 
 	console.log("number of items is ",weekday.length);
