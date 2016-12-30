@@ -39,7 +39,7 @@ function init() {
                     sensorData.shift();
 
                 sensorData.push(data);
-                io.emit('sensor', data);
+                //io.emit('sensor', data);
             }
 
         });
