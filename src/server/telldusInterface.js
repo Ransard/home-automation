@@ -1,4 +1,4 @@
-var optional = require("optional");
+var optional = require('optional');
 var telldus = optional('telldus');
 var lights = require('../../lights.json');
 
