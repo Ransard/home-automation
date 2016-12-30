@@ -2,8 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var sunCalc = require('suncalc');
 var CronJob = require('cron').CronJob;
-var telldus = require('telldus');
 var lights = require('./lights.json');
+var telldus = require('./src/server/telldusInterface');
 
 
 var app = express();
@@ -35,20 +35,7 @@ function getTimePortion(date){
 	return d.getHours() + ":" + d.getMinutes();
 }
 
-
-telldus.getDevices(function(err,devices) {
-	if ( err ) {
-		console.log('Error: ' + err);
-	} else {
-		// A list of all configured devices is returned
-		list = devices;
-
-		for(var i = 0; i < list.length; i++) {
-			list[i].schedules = [];
-			list[i].name = lights.filter(function(l){return l.id == list[i].id}).map(function(o){return o.name})[0];
-		}
-	}
-});
+telldus.init();
 
 var currTimestamp = [];
 
@@ -57,23 +44,7 @@ function AddSensorData(data){
 	return data.type == 1 && (!currTimestamp[data.deviceId] || data.timestamp - currTimestamp[data.deviceId] >= 5 * 60) ;
 }
 
-telldus.addSensorEventListener(function(deviceId,protocol,model,type,value,timestamp) {
-	console.log('New sensor event received: ',deviceId,protocol,model,type,value,timestamp);
 
-	var data = {deviceId: deviceId, protocol: protocol, model: model, type: type, value: value, timestamp: timestamp};
-
-	if(AddSensorData(data)) {
-
-		currTimestamp[data.deviceId] = data.timestamp;
-
-		if(sensorData.length > 1000)
-			sensorData.shift();
-
-		sensorData.push(data);
-		io.emit('sensor',data);
-	}	
-
-});
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/client/index.html');
