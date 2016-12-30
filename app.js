@@ -2,7 +2,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var sunCalc = require('suncalc');
 var CronJob = require('cron').CronJob;
-var lights = require('./lights.json');
 var telldus = require('./src/server/telldusInterface');
 
 

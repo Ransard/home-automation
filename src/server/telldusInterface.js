@@ -1,5 +1,6 @@
 var optional = require("optional");
 var telldus = optional('telldus');
+var lights = require('./lights.json');
 
 function init() {
     if (telldus) {
