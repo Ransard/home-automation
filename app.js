@@ -33,7 +33,7 @@ function getTimePortion(date){
 	return d.getHours() + ":" + d.getMinutes();
 }
 
-telldus.init(list);
+list = telldus.init();
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/client/index.html');
