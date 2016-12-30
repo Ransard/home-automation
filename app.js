@@ -33,7 +33,7 @@ function getTimePortion(date){
 	return d.getHours() + ":" + d.getMinutes();
 }
 
-telldus.init();
+telldus.init(list);
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/client/index.html');
@@ -180,7 +180,8 @@ app.get('/getDevices', function(req, res){
 });
 
 app.get('/getSensorData', function(req, res){
-	res.send(sensorData);
+	res.send(200);
+	//res.send(sensorData);
 });
 
 app.get('/getAllSchedules',function(req, res){

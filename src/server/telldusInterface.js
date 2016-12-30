@@ -5,7 +5,7 @@ var lights = require('../../lights.json');
 var currTimestamp = [];
 var sensorData = [];
 
-function init() {
+function init(list) {
     if (telldus) {
         function AddSensorData(data) {
             console.log(data.timestamp - currTimestamp[data.deviceId]);
