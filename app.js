@@ -15,7 +15,6 @@ app.use(bodyParser());
 var list;
 var schedules = [];
 var allSchedules = [];
-var sensorData = [] ;
 
 io.on('connection', function(socket){
 	console.log("a user connected again");

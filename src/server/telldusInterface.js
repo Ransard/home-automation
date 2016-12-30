@@ -3,6 +3,7 @@ var telldus = optional('telldus');
 var lights = require('../../lights.json');
 
 var currTimestamp = [];
+var sensorData = [];
 
 function init() {
     if (telldus) {
