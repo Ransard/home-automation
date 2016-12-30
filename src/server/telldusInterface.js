@@ -6,6 +6,7 @@ var currTimestamp = [];
 var sensorData = [];
 
 function init() {
+    var list;
     if (telldus) {
         function AddSensorData(data) {
             console.log(data.timestamp - currTimestamp[data.deviceId]);
