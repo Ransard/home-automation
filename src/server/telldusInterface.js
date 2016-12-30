@@ -2,6 +2,8 @@ var optional = require('optional');
 var telldus = optional('telldus');
 var lights = require('../../lights.json');
 
+var currTimestamp = [];
+
 function init() {
     if (telldus) {
         function AddSensorData(data) {
@@ -26,7 +28,7 @@ function init() {
         telldus.addSensorEventListener(function (deviceId, protocol, model, type, value, timestamp) {
             console.log('New sensor event received: ', deviceId, protocol, model, type, value, timestamp);
 
-            var data = { deviceId: deviceId, protocol: protocol, model: model, type: type, value: value, timestamp: timestamp };
+            var data = {deviceId: deviceId, protocol: protocol, model: model, type: type, value: value, timestamp: timestamp};
 
             if (AddSensorData(data)) {
 
@@ -44,5 +46,5 @@ function init() {
 }
 
 module.exports = {
-    init: init
-}
+    init: init,
+};

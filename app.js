@@ -36,8 +36,6 @@ function getTimePortion(date){
 
 telldus.init();
 
-var currTimestamp = [];
-
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/client/index.html');
 });
