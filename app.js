@@ -38,13 +38,6 @@ telldus.init();
 
 var currTimestamp = [];
 
-function AddSensorData(data){
-	console.log(data.timestamp - currTimestamp[data.deviceId]);
-	return data.type == 1 && (!currTimestamp[data.deviceId] || data.timestamp - currTimestamp[data.deviceId] >= 5 * 60) ;
-}
-
-
-
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/client/index.html');
 });

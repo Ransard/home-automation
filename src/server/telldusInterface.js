@@ -4,6 +4,11 @@ var lights = require('../../lights.json');
 
 function init() {
     if (telldus) {
+        function AddSensorData(data) {
+            console.log(data.timestamp - currTimestamp[data.deviceId]);
+            return data.type == 1 && (!currTimestamp[data.deviceId] || data.timestamp - currTimestamp[data.deviceId] >= 5 * 60);
+        }
+
         telldus.getDevices(function (err, devices) {
             if (err) {
                 console.log('Error: ' + err);
