@@ -2,8 +2,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var sunCalc = require("suncalc");
 var CronJob = require('cron').CronJob;
-var telldus = require('./src/server/telldusInterface');
-
 
 var app = express();
 var http = require('http').Server(app);
@@ -12,9 +10,17 @@ var io = require('socket.io')(http);
 app.use(express.static(__dirname + "/client"));
 app.use(bodyParser());
 
-var list;
 var schedules = [];
 var allSchedules = [];
+var list;
+
+var telldus = require('./src/server/telldusInterface');
+
+telldus.getDevices(function(data){
+	console.log("device data is", data);
+	list = data;
+});
+
 
 io.on('connection', function(socket){
 	console.log("a user connected again");
@@ -32,8 +38,6 @@ function getTimePortion(date){
 	var d = new Date(date);
 	return d.getHours() + ":" + d.getMinutes();
 }
-
-list = telldus.init();
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/client/index.html');
