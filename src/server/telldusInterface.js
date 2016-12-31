@@ -8,7 +8,9 @@ var sensorData = [];
     // Fake data in case telldus lib has not been properly installed
     if(!telldus){
         telldus = {
-            getDevices: (callback) => { callback(null,[{id: 1}])}
+            getDevices: (callback) => { callback(null,[{id: 1}])},
+            turnOn: (id,callback) => { if(false) callback(null) },
+            turnOff: (id,callback) => { if(false) callback(null) },
             //addSensorEventListener: (callback) => { callback(null)}
         };
     }
@@ -55,5 +57,7 @@ var sensorData = [];
         // });
 
 module.exports = {
-    getDevices: getDevices
+    getDevices: getDevices,
+    turnOn: telldus.turnOn,
+    turnOff: telldus.turnOff
 }
