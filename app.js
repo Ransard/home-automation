@@ -14,8 +14,7 @@ var schedules = [];
 var allSchedules = [];
 var list;
 
-//var telldus = require('./src/server/service/telldusInterface');
-var telldus = require('telldus');
+var telldus = require('./src/server/service/telldusInterface');
 
 telldus.getDevices(function (data) {
 	console.log("device data is", data);
@@ -194,6 +193,12 @@ var server = http.listen(80, function () {
 
 	var host = server.address().address;
 	var port = server.address().port;
+
+	let job = new CronJob("00 1 * * * *", function () { 
+		console.log("Pulse ", new Date());
+	});
+
+	job.start();
 
 	console.log('Example app listening at http://%s:%s', host, port);
 

@@ -1,19 +1,19 @@
-var optional = require('optional');
-var telldus = optional('telldus');
+//var optional = require('optional');
+var telldus = require('telldus');
 var lights = require('../../../lights.json');
 
 var currTimestamp = [];
 var sensorData = [];
 
 // Fake data in case telldus lib has not been properly installed
-if (!telldus) {
-	telldus = {
-		getDevices: (callback) => { callback(null, [{ id: 1 }]) },
-		turnOn: (id, callback) => { if (false) callback(null) },
-		turnOff: (id, callback) => { if (false) callback(null) },
-		//addSensorEventListener: (callback) => { callback(null)}
-	};
-}
+// if (!telldus) {
+// 	telldus = {
+// 		getDevices: (callback) => { callback(null, [{ id: 1 }]) },
+// 		turnOn: (id, callback) => { if (false) callback(null) },
+// 		turnOff: (id, callback) => { if (false) callback(null) },
+// 		//addSensorEventListener: (callback) => { callback(null)}
+// 	};
+// }
 
 // function AddSensorData(data) {
 //     console.log(data.timestamp - currTimestamp[data.deviceId]);
