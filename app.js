@@ -7,14 +7,15 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.use(express.static(__dirname + "/client"));
+app.use(express.static(__dirname + '/client'));
 app.use(bodyParser());
 
 var schedules = [];
 var allSchedules = [];
 var list;
 
-var telldus = require('./src/server/service/telldusInterface');
+//var telldus = require('./src/server/service/telldusInterface');
+var telldus = require('telldus');
 
 telldus.getDevices(function (data) {
 	console.log("device data is", data);
@@ -70,7 +71,7 @@ function getCurrentDevice(id) {
 }
 
 function getScheduleFromRequest(id, data) {
-	return { "id": id, "turnon": new Date(data.turnon), "turnoff": new Date(data.turnoff) };
+	return { 'id': id, 'turnon': new Date(data.turnon), 'turnoff': new Date(data.turnoff) };
 }
 
 app.post('/addSchedules', function (req, res) {
@@ -103,9 +104,9 @@ function addSchedule(newSchedule) {
 		currentDevice.schedules.push(currentSchedule);
 
 		var scheduleOn =
-			new CronJob(getCronTime(currentSchedule.turnon), function () { console.log("Turning on device with id ", currentDevice.id); telldus.turnOn(currentDevice.id, function (err) { console.log("error", err); }); });
+			new CronJob(getCronTime(currentSchedule.turnon), function () { console.log("Turning on device with id ", currentDevice.id, new Date()); telldus.turnOn(currentDevice.id, function (err) { console.log("error", new Date(), err); }); });
 		var scheduleOff =
-			new CronJob(getCronTime(currentSchedule.turnoff), function () { console.log("Turning off device with id", currentDevice.id); telldus.turnOff(currentDevice.id, function (err) { console.log("error", err); }); });
+			new CronJob(getCronTime(currentSchedule.turnoff), function () { console.log("Turning off device with id", currentDevice.id, new Date()); telldus.turnOff(currentDevice.id, function (err) { console.log("error", new Date(), err); }); });
 
 		currentSchedule.cron = {};
 		currentSchedule.cron.scheduleOn = scheduleOn;
@@ -161,7 +162,7 @@ app.get('/getDevices', function (req, res) {
 	var result = [];
 
 	list.forEach(function (item) {
-	var itemForClient = Object.assign({}, item);
+		var itemForClient = Object.assign({}, item);
 
 		itemForClient.schedules.forEach(function (schedule) {
 			schedule.cron = undefined;
