@@ -14,8 +14,7 @@ var schedules = [];
 var allSchedules = [];
 var list;
 
-//var telldus = require('./src/server/service/telldusInterface');
-var telldus = require('telldus');
+var telldus = require('./src/server/service/telldusInterface');
 
 telldus.getDevices(function (data) {
 	console.log("device data is", data);
