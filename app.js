@@ -195,6 +195,12 @@ var server = http.listen(80, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
+	var job = new CronJob('00 */10 * * * *', function () {
+		console.log("Pulse ", new Date());
+	});
+
+	job.start();
+
 	console.log('Example app listening at http://%s:%s', host, port);
 
 });

@@ -1,5 +1,6 @@
-var optional = require('optional');
-var telldus = optional('telldus');
+//var optional = require('optional');
+//var telldus = optional('telldus');
+var telldus = require('telldus');
 var lights = require('../../../lights.json');
 
 var currTimestamp = [];
