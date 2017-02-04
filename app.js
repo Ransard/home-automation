@@ -195,7 +195,7 @@ var server = http.listen(80, function () {
 	var port = server.address().port;
 
 	var job = new CronJob('00 */10 * * * *', function () {
-		console.log("Pulse ", new Date());
+		//console.log("Pulse ", new Date());
 	});
 
 	job.start();
